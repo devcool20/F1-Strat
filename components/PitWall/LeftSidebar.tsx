@@ -1,35 +1,20 @@
 "use client";
 
-import { useTelemetry } from '@/hooks/useTelemetry';
-import { useState, useEffect } from 'react';
+import { useRaceContext } from '@/context/TelemetryContext';
 
-const drivers = [
-  { pos: 1, code: 'LEC', team: '#AE2C23', gap: 'LEADER' },
-  { pos: 2, code: 'YOU', team: '#FFFFFF', gap: '+1.242' },
-  { pos: 3, code: 'VER', team: '#3671C6', gap: '+4.891' },
-  { pos: 4, code: 'NOR', team: '#FF8000', gap: '+8.102' },
-  { pos: 5, code: 'HAM', team: '#27F4D2', gap: '+12.334' },
-  { pos: 6, code: 'RUS', team: '#27F4D2', gap: '+14.221' },
-  { pos: 7, code: 'PIA', team: '#FF8000', gap: '+16.554' },
-  { pos: 8, code: 'SAI', team: '#AE2C23', gap: '+19.002' },
-];
+const teamColors: Record<string, string> = {
+  LEC: '#AE2C23',
+  YOU: '#FFFFFF',
+  VER: '#3671C6',
+  NOR: '#FF8000',
+  HAM: '#27F4D2',
+  RUS: '#27F4D2',
+  PIA: '#FF8000',
+  SAI: '#AE2C23',
+};
 
 export default function LeftSidebar() {
-  const telemetry = useTelemetry();
-  const [sectorTimes, setSectorTimes] = useState({ s1: 28.412, s2: 32.109, s3: 24.551 });
-
-  // Slowly vary sector times for realism
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSectorTimes({
-        s1: 28 + Math.random() * 1.2,
-        s2: 31.5 + Math.random() * 1.5,
-        s3: 24 + Math.random() * 1,
-      });
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-
+  const { leaderboard, sectorTimes, lap, totalLaps } = useRaceContext();
   const bestLap = (sectorTimes.s1 + sectorTimes.s2 + sectorTimes.s3).toFixed(3);
 
   return (
@@ -39,7 +24,7 @@ export default function LeftSidebar() {
       <div className="p-5 border-b border-[#403133]">
         <h3 className="text-[10px] text-[#A88A85] tracking-widest mb-4 font-bold">RACE LEADERBOARD</h3>
         <div className="space-y-1">
-          {drivers.map((d) => (
+          {leaderboard.map((d) => (
             <div 
               key={d.code}
               className={`flex items-center gap-3 px-2 py-2 transition-all ${
@@ -49,7 +34,7 @@ export default function LeftSidebar() {
               }`}
             >
               <span className="text-xs text-white font-bold w-5">{String(d.pos).padStart(2, '0')}</span>
-              <div className="w-1 h-4" style={{ backgroundColor: d.team }}></div>
+              <div className="w-1 h-4" style={{ backgroundColor: teamColors[d.code] ?? '#888' }}></div>
               <span className={`text-xs font-bold ${d.code === 'YOU' ? 'text-white' : 'text-[#E1BFBA]'}`}>
                 {d.code}
               </span>

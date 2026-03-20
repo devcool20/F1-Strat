@@ -1,16 +1,22 @@
 "use client";
 
-import { useTelemetry } from '@/hooks/useTelemetry';
+import { useRaceContext } from '@/context/TelemetryContext';
 import { motion } from 'framer-motion';
 
 export default function StrategyView() {
-  const telemetry = useTelemetry();
+  const { telemetry, leaderboard, lap, totalLaps } = useRaceContext();
+  const gapToLeader = leaderboard.find(d => d.code === 'YOU')?.gap ?? '—';
+  const idx = leaderboard.findIndex(d => d.code === 'YOU');
+  const gapBehind = idx >= 0 && idx < leaderboard.length - 1 ? leaderboard[idx + 1].gap : '—';
 
+  const lapsRemaining = totalLaps - lap;
   const pitWindows = [
-    { lap: '18-22', type: 'UNDERCUT', risk: 'LOW', delta: '-1.2s', recommended: true },
-    { lap: '24-28', type: 'OVERCUT', risk: 'MEDIUM', delta: '+0.3s', recommended: false },
-    { lap: '30-34', type: 'STANDARD', risk: 'HIGH', delta: '+2.1s', recommended: false },
+    { lap: `${lap + 1}-${lap + 4}`, type: 'UNDERCUT', risk: 'LOW', delta: '-1.2s', recommended: telemetry.tireWear < 60 },
+    { lap: `${lap + 5}-${lap + 9}`, type: 'OVERCUT', risk: 'MEDIUM', delta: '+0.3s', recommended: false },
+    { lap: `${lap + 10}-${lap + 15}`, type: 'STANDARD', risk: 'HIGH', delta: '+2.1s', recommended: false },
   ];
+  // Stable per-corner wear offsets
+  const cornerOffsets = [0, 1.5, 2.8, 4.1];
 
   return (
     <div className="flex-1 flex flex-col bg-[#170B0C] overflow-y-auto p-8 font-mono text-[11px] uppercase">
@@ -65,14 +71,14 @@ export default function StrategyView() {
           <h3 className="text-[#E1BFBA] font-bold mb-4 tracking-widest text-[10px]">TIRE DEGRADATION MODEL</h3>
           <div className="grid grid-cols-4 gap-3">
             {['FL', 'FR', 'RL', 'RR'].map((corner, i) => {
-              const wear = telemetry.tireWear - (i * 2) - Math.random() * 3;
+              const wear = Math.max(0, telemetry.tireWear - cornerOffsets[i]);
               const color = wear > 50 ? '#B9D164' : wear > 25 ? '#FFD700' : '#AE2C23';
               return (
                 <div key={corner} className="p-3 bg-[#403133]/20 border border-[#403133]">
                   <div className="text-[9px] text-[#A88A85] mb-2">{corner}</div>
-                  <div className="text-lg font-bold" style={{ color }}>{wear.toFixed(0)}%</div>
+                  <div className="text-lg font-bold" style={{ color }}>{wear.toFixed(1)}%</div>
                   <div className="h-1 bg-[#403133] mt-2 overflow-hidden">
-                    <div className="h-full transition-all" style={{ width: `${wear}%`, backgroundColor: color }}></div>
+                    <div className="h-full transition-all duration-1000" style={{ width: `${wear}%`, backgroundColor: color }}></div>
                   </div>
                 </div>
               );
@@ -85,14 +91,14 @@ export default function StrategyView() {
           <h3 className="text-[#E1BFBA] font-bold mb-4 tracking-widest text-[10px]">GAP ANALYSIS</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-[#403133]/20 border border-[#403133]">
-              <div className="text-[9px] text-[#A88A85] mb-1">GAP TO LEADER</div>
-              <div className="text-2xl font-bold text-[#FFB4AA]">+1.242</div>
-              <div className="text-[9px] text-[#B9D164] mt-1">↓ CLOSING 0.3s/LAP</div>
+              <div className="text-[9px] text-[#A88A85] mb-1">GAP TO LEADER (LEC)</div>
+              <div className="text-2xl font-bold text-[#FFB4AA]">{gapToLeader}</div>
+              <div className="text-[9px] text-[#B9D164] mt-1">↓ MONITOR DELTA</div>
             </div>
             <div className="p-4 bg-[#403133]/20 border border-[#403133]">
-              <div className="text-[9px] text-[#A88A85] mb-1">GAP BEHIND</div>
-              <div className="text-2xl font-bold text-[#B9D164]">+3.649</div>
-              <div className="text-[9px] text-[#A88A85] mt-1">→ STABLE</div>
+              <div className="text-[9px] text-[#A88A85] mb-1">GAP BEHIND ({leaderboard[idx + 1]?.code ?? '—'})</div>
+              <div className="text-2xl font-bold text-[#B9D164]">{gapBehind}</div>
+              <div className="text-[9px] text-[#A88A85] mt-1">LAPS REMAINING: {lapsRemaining}</div>
             </div>
           </div>
         </section>

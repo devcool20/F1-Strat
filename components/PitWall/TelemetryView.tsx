@@ -1,11 +1,11 @@
 "use client";
 
-import { useTelemetry } from '@/hooks/useTelemetry';
+import { useRaceContext } from '@/context/TelemetryContext';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
 export default function TelemetryView() {
-  const telemetry = useTelemetry();
+  const { telemetry } = useRaceContext();
   const [history, setHistory] = useState<number[]>([]);
 
   useEffect(() => {

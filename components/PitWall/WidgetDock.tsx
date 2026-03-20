@@ -1,11 +1,11 @@
 "use client";
 
-import { useTelemetry } from '@/hooks/useTelemetry';
+import { useRaceContext } from '@/context/TelemetryContext';
 import { motion } from 'framer-motion';
 import { Activity, Target } from 'lucide-react';
 
 export default function WidgetDock() {
-  const telemetry = useTelemetry();
+  const { telemetry } = useRaceContext();
 
   // Tire gauge config
   const tireRadius = 52;
