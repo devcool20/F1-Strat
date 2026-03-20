@@ -1,0 +1,64 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-carbon-black: #0D0405;
+  --color-ferrari-red: #AE2C23;
+  --color-telemetry-green: #8FA53E;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
+  --font-headline: var(--font-space-grotesk), sans-serif;
+}
+
+:root {
+  --background: #0D0405;
+  --foreground: #F5DDDE;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Effects */
+.scanline {
+  background: linear-gradient(to bottom, transparent 50%, rgba(174, 44, 35, 0.05) 50%);
+  background-size: 100% 4px;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Square spinner for initializing state */
+@keyframes rotateSquare {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(180deg); }
+}
+
+.rotating-square {
+  animation: rotateSquare 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+
+/* Scrollbar hiding for cleaner UI */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #352628;
+  border-radius: 4px;
+}
